@@ -1,7 +1,5 @@
-import tensorflow as tf
-import os
-from tensorflow.python.keras.layers import Layer
-from tensorflow.python.keras import backend as K
+from keras.layers import Layer
+from keras import backend as K
 
 
 class AttentionLayer(Layer):
@@ -18,15 +16,15 @@ class AttentionLayer(Layer):
         # Create a trainable weight variable for this layer.
 
         self.W_a = self.add_weight(name='W_a',
-                                   shape=tf.TensorShape((input_shape[0][2], input_shape[0][2])),
+                                   shape=(input_shape[0][2], input_shape[0][2]),
                                    initializer='uniform',
                                    trainable=True)
         self.U_a = self.add_weight(name='U_a',
-                                   shape=tf.TensorShape((input_shape[1][2], input_shape[0][2])),
+                                   shape=(input_shape[1][2], input_shape[0][2]),
                                    initializer='uniform',
                                    trainable=True)
         self.V_a = self.add_weight(name='V_a',
-                                   shape=tf.TensorShape((input_shape[0][2], 1)),
+                                   shape=(input_shape[0][2], 1),
                                    initializer='uniform',
                                    trainable=True)
 
@@ -58,12 +56,12 @@ class AttentionLayer(Layer):
             # <= batch_size*en_seq_len, latent_dim
             W_a_dot_s = K.reshape(K.dot(reshaped_enc_outputs, self.W_a), (-1, en_seq_len, en_hidden))
             if verbose:
-                print('wa.s>',W_a_dot_s.shape)
+                print('wa.s>', W_a_dot_s.shape)
 
             """ Computing hj.Ua """
             U_a_dot_h = K.expand_dims(K.dot(inputs, self.U_a), 1)  # <= batch_size, 1, latent_dim
             if verbose:
-                print('Ua.h>',U_a_dot_h.shape)
+                print('Ua.h>', U_a_dot_h.shape)
 
             """ tanh(S.Wa + hj.Ua) """
             # <= batch_size*en_seq_len, latent_dim
@@ -112,11 +110,11 @@ class AttentionLayer(Layer):
             context_step, e_outputs, [fake_state_c],
         )
 
-        return c_outputs, e_outputs
+        return [c_outputs, e_outputs]
 
     def compute_output_shape(self, input_shape):
         """ Outputs produced by the layer """
         return [
-            tf.TensorShape((input_shape[1][0], input_shape[1][1], input_shape[1][2])),
-            tf.TensorShape((input_shape[1][0], input_shape[1][1], input_shape[0][1]))
+            (input_shape[1][0], input_shape[1][1], input_shape[1][2]),
+            (input_shape[1][0], input_shape[1][1], input_shape[0][1])
         ]
